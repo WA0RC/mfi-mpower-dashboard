@@ -118,6 +118,12 @@ USERNAME = "ubnt"
 PASSWORD = "ubnt"
 ```
 
+## Screenshot
+
+<img src="img/screenshot.png" alt="Screenshot of the dashboard showing Port 1 turning on, then off, then losing ping, and finally turning back on with ping recovered" width="1200" />
+
+*Port 1 was turned on, then turned off, then lost ping, and finally turned back on with ping recovered.*
+
 ## Notes
 
 - The dashboard only polls the device when someone has the page open -

@@ -1,0 +1,9 @@
+services:
+  mfi-mpower-dashboard:
+    image: ghcr.io/wa0rc/mfi-mpower-dashboard:latest
+    container_name: mfi-mpower-dashboard
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./config.json:/app/config.json:ro
+    restart: unless-stopped
