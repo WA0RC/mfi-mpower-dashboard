@@ -47,7 +47,7 @@ CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.j
 
 DEFAULT_CONFIG = {
     "device": dict(DEFAULT_DEVICE_CONFIG),
-    **{str(i): {"label": f"Port {i}", "tooltip": ""} for i in PORTS},
+    **{str(i): {"label": f"Port {i}", "tooltip": "", "enabled": True} for i in PORTS},
 }
 
 
@@ -81,9 +81,11 @@ def load_config():
     for i in PORTS:
         key = str(i)
         entry = raw.get(key, {}) if isinstance(raw.get(key, {}), dict) else {}
+        enabled_value = entry.get("enabled", True)
         ports[key] = {
             "label": entry.get("label") or f"Port {i}",
             "tooltip": entry.get("tooltip") or "",
+            "enabled": enabled_value if isinstance(enabled_value, bool) else True,
         }
 
     return {
@@ -171,6 +173,7 @@ async def read_power_data():
             "port": i,
             "label": cfg["label"],
             "tooltip": cfg["tooltip"],
+            "enabled": cfg.get("enabled", True),
             "on": data["output"].get(i) == "1",
             "power_w": power_w,
             "voltage_v": float(data["v_rms"].get(i, 0) or 0),
@@ -230,6 +233,9 @@ def api_control():
             raise ValueError(f"port must be 1-8, got {port}")
         if state not in (0, 1):
             raise ValueError(f"state must be 0 or 1, got {state}")
+        config = load_config()
+        if not config["ports"].get(str(port), {}).get("enabled", True):
+            raise PermissionError(f"control disabled for port {port}")
         run_on_loop(set_port_state(port, state))
         return jsonify({"ok": True})
     except Exception as exc:
@@ -558,6 +564,20 @@ INDEX_HTML = """<!DOCTYPE html>
     margin-top: auto;
   }
 
+  .control-disabled-banner {
+    margin-top: auto;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-faint);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: center;
+    opacity: 0.8;
+  }
+
   .toggle-btn {
     flex: 1 1 0;
     font-family: var(--sans);
@@ -704,10 +724,14 @@ function renderPorts(ports) {
         </div>
       </div>
       <div class="divider"></div>
-      <div class="toggle-row">
-        <button class="toggle-btn on-btn" data-port="${p.port}" data-state="1" ${p.on ? 'disabled' : ''}>ON</button>
-        <button class="toggle-btn off-btn" data-port="${p.port}" data-state="0" ${!p.on ? 'disabled' : ''}>OFF</button>
-      </div>
+      ${p.enabled ? `
+        <div class="toggle-row">
+          <button class="toggle-btn on-btn" data-port="${p.port}" data-state="1" ${p.on ? 'disabled' : ''}>ON</button>
+          <button class="toggle-btn off-btn" data-port="${p.port}" data-state="0" ${!p.on ? 'disabled' : ''}>OFF</button>
+        </div>
+      ` : `
+        <div class="control-disabled-banner">control disabled</div>
+      `}
     `;
     grid.appendChild(card);
   });

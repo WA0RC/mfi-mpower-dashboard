@@ -87,6 +87,41 @@ docker compose -f docker-compose.example.yml up --build
 
 The compose file mounts `config.json` into the container as a read-only volume.
 
+### Multi-arch build for GHCR
+
+To publish a single image that supports both `linux/amd64` and `linux/arm64`
+(for example, a desktop machine and a Raspberry Pi), use Docker Buildx:
+
+```bash
+docker run --privileged --rm tonistiigi/binfmt --install all
+```
+
+If the Buildx builder does not already exist, create it:
+
+```bash
+docker buildx create --name multiarch --use
+```
+
+If it already exists, reuse it instead:
+
+```bash
+docker buildx use multiarch
+```
+
+Then bootstrap and build/push the multi-arch image:
+
+```bash
+docker buildx inspect --bootstrap
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --push \
+  -t ghcr.io/wa0rc/mfi-mpower-dashboard:latest \
+  -t ghcr.io/wa0rc/mfi-mpower-dashboard:v0.0.1 \
+  .
+```
+
+This replaces the existing GHCR tags with the new multi-arch manifests.
+
 Then visit `http://<pi-ip-address>:8081/` from any browser on the same
 network (not the mPower device's own IP - your Pi's address).
 
@@ -100,12 +135,15 @@ every page refresh, so changes show up without restarting the server:
 
 ```json
 {
-  "1": { "label": "Server Rack", "tooltip": "Main homelab PDU feed" },
-  "2": { "label": "Router", "tooltip": "" }
+  "1": { "label": "Server Rack", "tooltip": "Main homelab PDU feed", "enabled": true },
+  "2": { "label": "Router", "tooltip": "", "enabled": true },
+  "3": { "label": "Test Device", "tooltip": "Disabled for now", "enabled": false }
 }
 ```
 
 Leave `tooltip` as an empty string to skip showing one for that port.
+If `enabled` is omitted, it defaults to `true`. When `enabled` is `false`,
+the ON/OFF buttons are replaced with a small "control disabled" banner.
 
 ## Device connection settings
 
