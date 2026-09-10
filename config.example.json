@@ -1,0 +1,39 @@
+{
+  "device": {
+    "host": "10.0.0.252",
+    "username": "ubnt",
+    "password": "ubnt"
+  },
+  "1": {
+    "label": "Living Room TV",
+    "tooltip": "Primary entertainment rack outlet"
+  },
+  "2": {
+    "label": "Router",
+    "tooltip": "Internet and Wi-Fi gateway"
+  },
+  "3": {
+    "label": "Network Switch",
+    "tooltip": "Ethernet switch for home lab devices"
+  },
+  "4": {
+    "label": "NAS",
+    "tooltip": "Storage appliance"
+  },
+  "5": {
+    "label": "Printer",
+    "tooltip": "Office printer and scanner"
+  },
+  "6": {
+    "label": "Desk Workstation",
+    "tooltip": "Main workstation and accessories"
+  },
+  "7": {
+    "label": "Charging Station",
+    "tooltip": "Phone and accessory charging hub"
+  },
+  "8": {
+    "label": "Spare Outlet",
+    "tooltip": "Reserved for temporary devices"
+  }
+}

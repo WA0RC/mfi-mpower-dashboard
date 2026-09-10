@@ -1,0 +1,11 @@
+services:
+  mfi-mpower-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mfi-mpower-dashboard
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./config.json:/app/config.json:ro
+    restart: unless-stopped
